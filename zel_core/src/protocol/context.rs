@@ -39,6 +39,14 @@ pub struct RequestContext {
     shutdown_signal: Arc<tokio::sync::Notify>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConnectionType {
+    Direct,
+    Relay,
+    Mixed,
+    None,
+}
+
 impl RequestContext {
     /// Create a new RequestContext.
     ///
@@ -98,9 +106,38 @@ impl RequestContext {
     ///     }
     /// }
     /// ```
+    //#[cfg(not(wasm_browser))]
+    //pub fn connection_type(&self) -> Option<impl Watcher + use<>> {
+    //    self.endpoint.conn_type(self.connection.remote_id())
+    //}
+
     #[cfg(not(wasm_browser))]
-    pub fn connection_type(&self) -> Option<impl Watcher + use<>> {
-        self.endpoint.conn_type(self.connection.remote_id())
+    pub fn connection_type(&self) -> ConnectionType {
+        let paths = self.connection.paths();
+
+        if paths.is_empty() {
+            return ConnectionType::None;
+        }
+
+        let mut has_direct = false;
+        let mut has_relay = false;
+
+        for path in paths.iter() {
+            let addr = path.remote_addr();
+
+            match addr {
+                iroh_base::TransportAddr::Ip(_) => has_direct = true,
+                iroh_base::TransportAddr::Relay(_) => has_relay = true,
+                _ => {}
+            }
+        }
+
+        match (has_direct, has_relay) {
+            (true, true) => ConnectionType::Mixed,
+            (true, false) => ConnectionType::Direct,
+            (false, true) => ConnectionType::Relay,
+            _ => ConnectionType::None,
+        }
     }
 
     /// Get the remote peer's PublicKey.
@@ -180,9 +217,14 @@ impl RequestContext {
     ///     log::warn!("High latency detected: {:?}", rtt);
     /// }
     /// ```
-    pub fn connection_rtt(&self) -> std::time::Duration {
-        self.connection.rtt()
+    pub fn connection_rtt(&self) -> Option<std::time::Duration> {
+        let paths = self.connection.paths();
+        let first = paths.iter().next()?;
+        let path_id = first.id();
+
+        self.connection.rtt(path_id)
     }
+
 
     /// Get detailed statistics for this connection.
     ///

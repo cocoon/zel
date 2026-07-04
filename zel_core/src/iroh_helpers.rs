@@ -1,9 +1,11 @@
 use iroh::{
-    discovery::dns::DnsDiscovery,
     endpoint::BindError,
     protocol::{DynProtocolHandler, Router, RouterBuilder},
     Endpoint, SecretKey, Watcher,
 };
+
+use iroh::{ EndpointAddr, endpoint::presets};
+
 use log::warn;
 use std::time::Duration;
 use thiserror::Error;
@@ -196,22 +198,28 @@ impl IrohBundle {
     ///
     /// # Errors
     /// Returns [`BuilderError`] if the endpoint fails to bind to a network address.
-    pub async fn builder(secret_key: Option<SecretKey>) -> Result<Builder, BuilderError> {
-        let mut endpoint = iroh::Endpoint::builder().discovery(DnsDiscovery::n0_dns());
-        if let Some(secret_key) = secret_key {
-            endpoint = endpoint.secret_key(secret_key);
-        }
 
-        let endpoint = endpoint.bind().await?;
-        let router_builder = RouterBuilder::new(endpoint.clone());
 
-        let shutdown_tx = vec![];
-        Ok(Builder {
-            endpoint,
-            router_builder,
-            shutdown_subscribers: shutdown_tx,
-        })
+
+pub async fn builder(secret_key: Option<SecretKey>) -> anyhow::Result<Builder> {
+    //let mut endpoint = Endpoint::builder(presets::N0).discovery(presets::dns());
+    let mut endpoint = Endpoint::builder(presets::N0);
+    
+    if let Some(sk) = secret_key {
+        endpoint = endpoint.secret_key(sk);
     }
+
+    let endpoint = endpoint.bind().await?;
+    let router_builder = RouterBuilder::new(endpoint.clone());
+
+    Ok(Builder {
+        endpoint,
+        router_builder,
+        shutdown_subscribers: vec![],
+    })
+}
+
+
 
     /// Initiate graceful shutdown of the Iroh bundle.
     ///

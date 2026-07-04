@@ -579,7 +579,8 @@ mod tests {
             .build();
 
         let breakers = PeerCircuitBreakers::new(config);
-        let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        //let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        let peer_id = iroh::SecretKey::generate().public();
 
         // Successful operation
         let result = breakers
@@ -595,7 +596,8 @@ mod tests {
             .build();
 
         let breakers = PeerCircuitBreakers::new(config);
-        let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        //let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        let peer_id = iroh::SecretKey::generate().public();
 
         // Cause failures - these will execute but cause circuit to open
         for _ in 0..2 {
@@ -624,8 +626,10 @@ mod tests {
             .build();
 
         let breakers = PeerCircuitBreakers::new(config);
-        let peer1 = iroh::SecretKey::generate(&mut rand::rng()).public();
-        let peer2 = iroh::SecretKey::generate(&mut rand::rng()).public();
+        //let peer1 = iroh::SecretKey::generate(&mut rand::rng()).public();
+        let peer1 = iroh::SecretKey::generate().public();
+        //let peer2 = iroh::SecretKey::generate(&mut rand::rng()).public();
+        let peer2 = iroh::SecretKey::generate().public();
 
         // Fail peer1 - these will execute but cause circuit to open
         for _ in 0..2 {
@@ -660,7 +664,8 @@ mod tests {
             .build();
 
         let breakers = PeerCircuitBreakers::new(config);
-        let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        //let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        let peer_id = iroh::SecretKey::generate().public();
 
         // Send 5 application errors (more than threshold of 2)
         for _ in 0..5 {
@@ -693,7 +698,8 @@ mod tests {
             .build();
 
         let breakers = PeerCircuitBreakers::new(config);
-        let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        //let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        let peer_id = iroh::SecretKey::generate().public();
 
         // Send 2 infrastructure errors (exactly the threshold)
         for _ in 0..2 {
@@ -722,7 +728,8 @@ mod tests {
             .build();
 
         let breakers = PeerCircuitBreakers::new(config);
-        let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        //let peer_id = iroh::SecretKey::generate(&mut rand::rng()).public();
+        let peer_id = iroh::SecretKey::generate().public();
 
         // Important: circuitbreaker-rs resets consecutive failure counter on ANY success
         // (including Ok(Err(...)) from our double-Result pattern).

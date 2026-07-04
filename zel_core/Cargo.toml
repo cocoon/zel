@@ -13,7 +13,7 @@ readme = "../README.md"
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(wasm_browser)'] }
 
 [features]
-metrics = ["iroh/metrics"]
+#metrics = ["iroh/metrics"]
 
 [dependencies]
 zel_macros = { version = "0.5.0", path = "../zel_macros" }
@@ -23,7 +23,14 @@ anyhow = "1.0.100"
 async-trait = "0.1.89"
 env_logger = "0.11.8"
 futures = "0.3.31"
-iroh = { version = "0.95.1", features = ["metrics"] }
+
+iroh = { version = "1" }
+iroh-base   = { version = "1.0.1", features = ["key", "relay"] }
+iroh-net    = { version = "0.28.2" }
+iroh-dns    = { version = "1.0.1" }
+iroh-router = { version = "0.28.0" }
+iroh-mdns-address-lookup = { version = "0.4.0" }
+
 log = "0.4.28"
 tracing = "0.1"
 serde = "1.0.228"
@@ -38,6 +45,9 @@ backon = { version = "1.6.0", features = ["tokio"] }
 circuitbreaker-rs = { version = "0.1.1", features = ["tokio", "async"] }
 rng = "0.1.0"
 rand = "0.9.2"
+
+
+#pkcs8 = "=0.11.0-rc.11"
 
 [dev-dependencies]
 sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite"] }
